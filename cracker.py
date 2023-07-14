@@ -35,15 +35,8 @@ def crack_zip():
         # Perform password cracking and ZIP file testing
         with zipfile.ZipFile(file_path) as zf:
             for length in range(1, max_length + 1):
-                # Generate all possible combinations based on the selected filter
-                if selected_filter == "Numbers":
-                    combinations = itertools.product("0123456789", repeat=length)
-                elif selected_filter == "Lowercase letters":
-                    combinations = itertools.product("abcdefghijklmnopqrstuvwxyz", repeat=length)
-                elif selected_filter == "Uppercase letters":
-                    combinations = itertools.product("ABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=length)
-                else:  # "All" filter
-                    combinations = itertools.product("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", repeat=length)
+                # Generate all possible combinations based on the selected filter and current length
+                combinations = itertools.product(selected_filter, repeat=length)
 
                 # Try each combination as a password
                 for combination in combinations:
@@ -65,7 +58,13 @@ def crack_zip():
 
 window = tk.Tk()
 window.title("ZIP Password Cracker")
-window.geometry("500x300")
+window_width = 500
+window_height = 300
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
+x_coordinate = int((screen_width / 2) - (window_width / 2))
+y_coordinate = int((screen_height / 2) - (window_height / 2))
+window.geometry(f"{window_width}x{window_height}+{x_coordinate}+{y_coordinate}")
 window.configure(bg="#F8F8F8")
 
 header_label = tk.Label(window, text="ZIP Password Cracker", font=("Arial", 24, "bold"), bg="#F8F8F8")
