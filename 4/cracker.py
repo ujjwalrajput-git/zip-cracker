@@ -1,3 +1,19 @@
+#   UJJWAL RAJPUT
+#   B-Tech CSE
+#   Section R
+#   Class Roll Number 76
+#   21011074
+
+                                                                                  
+#   ███████╗██╗██████╗      ██████╗██████╗  █████╗  ██████╗██╗  ██╗███████╗██████╗ 
+#   ╚══███╔╝██║██╔══██╗    ██╔════╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+#     ███╔╝ ██║██████╔╝    ██║     ██████╔╝███████║██║     █████╔╝ █████╗  ██████╔╝
+#    ███╔╝  ██║██╔═══╝     ██║     ██╔══██╗██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+#   ███████╗██║██║         ╚██████╗██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║
+#   ╚══════╝╚═╝╚═╝          ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+                                                                                   
+
+# libraries 
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import os
@@ -5,22 +21,27 @@ import zipfile
 import itertools
 import threading
 
+# Function to select the ZIP file
 def select_file():
     file_path = filedialog.askopenfilename()
     file_entry.delete(0, tk.END)
     file_entry.insert(tk.END, file_path)
 
+# Function to select the dictionary file
 def dictionary_select_file():
     dictionary_path = filedialog.askopenfilename()
     dictionary_entry.delete(0, tk.END)
     dictionary_entry.insert(tk.END, dictionary_path)
 
+# Check if the file is a ZIP file
 def is_zip_file(file_path):
     return file_path.lower().endswith('.zip')
 
+# Check if the file is a TXT file
 def is_txt_file(file_path):
     return file_path.lower().endswith('.txt')
 
+# Extract the ZIP file with a given password
 def extract_zip(file_path, password):
     try:
         with zipfile.ZipFile(file_path) as zf:
@@ -29,36 +50,43 @@ def extract_zip(file_path, password):
     except Exception:
         return False
 
+# Show error message in a dialog box
 def show_error(message):
     messagebox.showerror("Error", message)
 
-def set_unavailable_cursor(event):
-    event.widget.configure(cursor="no")
-
+# Perform dictionary attack on the ZIP file---------------------------------------------------------------
 def dictionary_attack(file_path, dictionary_path):
+    # Read passwords from the dictionary file
     with open(dictionary_path, 'r', encoding='utf-8') as f:
         passwords = f.read().splitlines()
 
+    # Try each password in the dictionary
     for password in passwords:
         if extract_zip(file_path, password):
+            # Password found
             messagebox.showinfo("Cracking Complete", f"Password found: {password}")
             progress_label.config(text="Cracking complete: Password found - " + password)
             return
 
+    # No password found
     messagebox.showinfo("Cracking Complete", "No password found.")
     progress_label.config(text="Cracking complete: Password not found.")
 
+#----------------------------------------------------------------------------------------------------------
+
+# Update the UI based on the selected cracking method
 def update_ui():
     method_option = method_var.get()
-    
+
     if method_option == "Dictionary":
+        # Enable dictionary attack options
         dictionary_label.config(state=tk.NORMAL)
         dictionary_label.configure(cursor="arrow")
         dictionary_entry.config(state=tk.NORMAL)
         dictionary_entry.configure(cursor="arrow")
         dictionary_browse_button.config(state=tk.NORMAL)
         dictionary_browse_button.configure(cursor="arrow")
-        # unavailabled items 
+        # Disable brute force options
         filter_label.config(state=tk.DISABLED)
         filter_label.configure(cursor="no")
         filter_dropdown.config(state=tk.DISABLED)
@@ -67,8 +95,9 @@ def update_ui():
         length_label.configure(cursor="no")
         length_entry.config(state=tk.DISABLED)
         length_entry.configure(cursor="no")
-        
+
     elif method_option == "Brute Force":
+        # Enable brute force options
         dictionary_entry.delete(0, tk.END)
         filter_label.config(state=tk.NORMAL)
         filter_label.configure(cursor="arrow")
@@ -78,23 +107,24 @@ def update_ui():
         length_label.configure(cursor="arrow")
         length_entry.config(state=tk.NORMAL)
         length_entry.configure(cursor="arrow")
-        # unavailabled items
+        # Disable dictionary attack options
         dictionary_label.config(state=tk.DISABLED)
         dictionary_label.configure(cursor="no")
         dictionary_entry.config(state=tk.DISABLED)
         dictionary_entry.configure(cursor="no")
         dictionary_browse_button.config(state=tk.DISABLED)
         dictionary_browse_button.configure(cursor="no")
-        
 
+#----------------------------------------------------------------------------------------------------------
 
+# Crack the ZIP file
 def crack_zip():
     file_path = file_entry.get()
     max_length = length_entry.get()
     method_option = method_var.get()
     filter_option = filter_var.get()
     dictionary_path = dictionary_entry.get()
-    
+
     if not file_path:
         show_error("Please enter the ZIP file path!")
         return
@@ -104,7 +134,8 @@ def crack_zip():
     elif not is_zip_file(file_path):
         show_error("The selected file is not a valid ZIP file!")
         return
-    if method_var.get() == "Dictionary":  
+
+    if method_var.get() == "Dictionary":
         if not dictionary_path:
             show_error("Please enter the Dictionary file path!")
             return
@@ -114,6 +145,7 @@ def crack_zip():
         elif not is_txt_file(dictionary_path):
             show_error("The selected file is not a valid TXT file!")
             return
+
     if method_var.get() == "Brute Force":
         if not max_length:
             show_error("Please enter the maximum password length!")
@@ -124,12 +156,13 @@ def crack_zip():
 
     found_password = None
     progress_label.config(text="Cracking in progress...")
-    
 
     def cracking_thread():
         nonlocal found_password
         character_set = ""
-
+        
+        #--------------------------------------------------------------------------------------------
+        
         if method_option == "Brute Force":
             if filter_option == "Numbers":
                 character_set = "0123456789"
@@ -139,6 +172,9 @@ def crack_zip():
                 character_set = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             elif filter_option == "All":
                 character_set = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()"
+        
+        #--------------------------------------------------------------------------------------------
+        
         elif method_option == "Dictionary":
             dictionary_path = dictionary_entry.get()
             if not dictionary_path:
@@ -146,9 +182,9 @@ def crack_zip():
                 return
             dictionary_attack(file_path, dictionary_path)
             return
-
+        #------------------------------------------------------------------------------------------------
+        
         total_combinations = sum(len(character_set) ** length for length in range(1, int(max_length) + 1))
-
         progress = 0
 
         for length in range(1, int(max_length) + 1):
@@ -182,10 +218,12 @@ def crack_zip():
         progress_info_label.config(text="")
         crack_button.config(state=tk.NORMAL)
 
-
     thread = threading.Thread(target=cracking_thread)
     thread.start()
 
+#----------------------------------------------------------------------------------------------------------
+
+# Create the main window
 window = tk.Tk()
 window.title("ZIP Password Cracker")
 window_width = 550
@@ -199,6 +237,9 @@ window.configure(bg="#E6E6E6")
 
 header_label = tk.Label(window, text="ZIP Password Cracker", font=("Arial", 28, "bold"), bg="#E6E6E6")
 header_label.pack(pady=10)
+
+cc_label = tk.Label(window, text="cc Ujjwal Rajput", font=("Arial", 15, "bold"), bg="#E6E6E6")
+cc_label.pack()
 
 file_frame = tk.Frame(window, bg="#E6E6E6")
 file_frame.pack()
